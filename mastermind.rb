@@ -1,6 +1,8 @@
 require 'colorize'
 # 🌑.color for pin
 # 🌕 for hole
+# ◦ for ans hole
+#
 # six colors
 # 4 pegs
 class GameEngine
@@ -37,18 +39,30 @@ class GameEngine
   class Mastermind
     def initialize(number_of_pegs = 4)
       @code = generate_code(number_of_pegs)
+      @lines = generate_hash
       puts 'Welcome to MASTERMIND!'
       show_board
     end
 
-    def show_board
-      puts '------------------------'
-      puts 'Board here'
-      puts '------------------------'
-      show_colors
+    def generate_hash
+      hash = {}
+      11.times do |x|
+        hash[('line' + x.to_s).to_sym] = { line: x,
+                                           guess: %w[🌕 🌕 🌕 🌕],
+                                           answer: %w[◦ ◦ ◦ ◦] }
+      end
+      hash
     end
 
-    def show_colors
+    def show_board
+      puts '   ----------------------'
+      puts '   |    MASTERMIND      |'
+      puts '   ----------------------'
+      puts 'BOARD CODE HERE'
+      show_options
+    end
+
+    def show_options
       puts 'Shows 0..5 colors to select from with corrisponding numbers'
     end
 
@@ -66,7 +80,7 @@ class GameEngine
       player_input == @code
     end
 
-    def get_input
+    def recieve_input
       puts "Enter #{@code.length} numbers corrisponding to the colors above"
       player_code = gets.chomp.split('')
       player_code.delete(' ')
