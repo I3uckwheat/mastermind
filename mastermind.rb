@@ -31,11 +31,11 @@ class GameEngine
   end
 
   def recieve_input
-    mastermind.input
+    mastermind.get_input
   end
 
   class Mastermind
-    def initialize(number_of_pegs)
+    def initialize(number_of_pegs = 4)
       @code = generate_code(number_of_pegs)
       puts 'Welcome to MASTERMIND!'
       show_board
@@ -66,23 +66,25 @@ class GameEngine
       player_input == @code
     end
 
-    def input
+    def get_input
       puts "Enter #{@code.length} numbers corrisponding to the colors above"
       player_code = gets.chomp.split('')
       player_code.delete(' ')
-      input_validator(input)
+      input_validator(player_code)
     end
 
     private
 
     def input_validator(input)
-      if input.length == 4 && /\d\d\d\d/.match?(input.join)
+      if input.length == 4 &&
+         input.each { |x| x < 7 } &&
+         /\d\d\d\d/.match?(input.join)
         input.map(&:to_i)
       else
+        show_board
         puts 'INVALID INPUT'
         puts 'TRY AGAIN'
-        #     show_board
-        #     get input again
+        get_input
       end
     end
   end
