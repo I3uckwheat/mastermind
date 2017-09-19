@@ -9,14 +9,16 @@ require 'colorized_string'
 class GameEngine
   def initialize(number_of_pegs = 4)
     @mastermind = Mastermind.new(number_of_pegs)
+    @round_number = 0
     round
   end
 
   def round
-    recieve_input
-    # place
+    place(recieve_input)
     # win?
-    # show_playfield
+    # hint
+    show_playfield
+    @round_number += 1
   end
 
   def show_playfield
@@ -30,7 +32,7 @@ class GameEngine
   end
 
   def place(player_input)
-    @mastermind.place(player_input)
+    @mastermind.place(player_input, @round_number)
   end
 
   def recieve_input
@@ -42,7 +44,7 @@ class GameEngine
       @code = generate_code(number_of_pegs)
       @lines = generate_hash
       @colors = { 1 => 'magenta', 2 => 'light_red', 3 => 'green',
-                  4 => 'yellow', 5 => 'cyan', 6 => 'white' }
+                  4 => 'yellow', 5 => 'cyan', 6 => 'white', 7 => 'light_black' }
       puts 'Welcome to MASTERMIND!'
       show_board
     end
@@ -51,7 +53,7 @@ class GameEngine
       hash = {}
       10.times do |x|
         hash[('line' + x.to_s).to_sym] = { line_number: x + 1,
-                                           guess: %w[🌕 🌕 🌕 🌕],
+                                           guess: Array.new(4, ColorizedString["🌕"].colorize(:white)),
                                            answer: %w[◦ ◦ ◦ ◦] }
       end
       hash
@@ -63,8 +65,7 @@ class GameEngine
       puts '|   MASTERMIND   |'.rjust(24)
       puts line
       @lines.each_value do |values|
-        puts "#{values[:line_number]}  | #{values[:guess].join(' ')} | \
-        #{values[:answer].join} | ".rjust(25)
+        puts "#{values[:line_number]}  | #{values[:guess].join(' ')} | #{values[:answer].join} | ".rjust(25)
       end
       puts line
       show_options
@@ -79,18 +80,14 @@ class GameEngine
       puts "#{dot(4)} #{dot(5)} #{dot(6)}"
     end
 
-    def update(player_input)
-      # where player_input is an array
-    end
-
     def generate_code(pegs) # Chance to add difficulty later
       code = []
       pegs.times { code << rand(7) }
       code
     end
 
-    def win_condition(player_input)
-      player_input == @code
+    def win_condition # last code entered == the computer code = win!
+      # last code entered == @code
     end
 
     def recieve_input
@@ -100,11 +97,17 @@ class GameEngine
       input_validator(player_code)
     end
 
+    def place(player_input, round_number) # Where player input is an array
+      @lines[('line' + round_number.to_s).to_sym][:guess] = player_input.map do |color|
+        dot(color)
+      end
+    end
+
     private
 
     def input_validator(input)
       if input.length == 4 &&
-         input.each { |x| x.to_i < 7 } &&
+         input.all? { |x| x.to_i <= 6 } &&
          /\d\d\d\d/.match?(input.join)
         input.map(&:to_i)
       else
@@ -117,4 +120,6 @@ class GameEngine
   end
 end
 
-game = GameEngine.new
+g = GameEngine.new
+
+9.times { g.round }
