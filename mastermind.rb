@@ -41,6 +41,8 @@ class GameEngine
     def initialize(number_of_pegs = 4)
       @code = generate_code(number_of_pegs)
       @lines = generate_hash
+      @colors = { 1 => 'magenta', 2 => 'light_red', 3 => 'green',
+                  4 => 'yellow', 5 => 'cyan', 6 => 'white' }
       puts 'Welcome to MASTERMIND!'
       show_board
     end
@@ -68,21 +70,7 @@ class GameEngine
     end
 
     def dot(color)
-      dot_color = case color
-                  when 1
-                    'magenta'
-                  when 2
-                    'light_red'
-                  when 3
-                    'green'
-                  when 4
-                    'yellow'
-                  when 5
-                    'cyan'
-                  when 6
-                    'white'
-                  end
-      ColorizedString['🌑'].colorize(dot_color.to_sym)
+      ColorizedString['🌑'].colorize(@colors[color].to_sym)
     end
 
     def show_options
@@ -115,15 +103,17 @@ class GameEngine
 
     def input_validator(input)
       if input.length == 4 &&
-         input.each { |x| x < 7 } &&
+         input.each { |x| x.to_i < 7 } &&
          /\d\d\d\d/.match?(input.join)
         input.map(&:to_i)
       else
         show_board
         puts 'INVALID INPUT'
         puts 'TRY AGAIN'
-        get_input
+        recieve_input
       end
     end
   end
 end
+
+game = GameEngine.new
