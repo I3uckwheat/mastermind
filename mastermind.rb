@@ -1,8 +1,9 @@
 require 'colorize'
+require 'colorized_string'
 # 🌑.color for pin
 # 🌕 for hole
 # ◦ for ans hole
-#
+# • for selection
 # six colors
 # 4 pegs
 class GameEngine
@@ -46,24 +47,47 @@ class GameEngine
 
     def generate_hash
       hash = {}
-      11.times do |x|
-        hash[('line' + x.to_s).to_sym] = { line: x,
+      10.times do |x|
+        hash[('line' + x.to_s).to_sym] = { line_number: x + 1,
                                            guess: %w[🌕 🌕 🌕 🌕],
                                            answer: %w[◦ ◦ ◦ ◦] }
       end
       hash
     end
 
-    def show_board
-      puts '   ----------------------'
-      puts '   |    MASTERMIND      |'
-      puts '   ----------------------'
-      puts 'BOARD CODE HERE'
+    def show_board(lines)
+      line = '------------------'.rjust(24)
+      puts line
+      puts '|   MASTERMIND   |'.rjust(24)
+      puts line
+      lines.each_value do |values|
+        puts "#{values[:line_number]}  | #{values[:guess].join(' ')} | #{values[:answer].join} | ".rjust(25)
+      end
+      puts line
       show_options
     end
 
+    def dot(color)
+      dot_color = case color
+                  when 1
+                    'magenta'
+                  when 2
+                    'light_red'
+                  when 3
+                    'green'
+                  when 4
+                    'yellow'
+                  when 5
+                    'cyan'
+                  when 6
+                    'white'
+                  end
+      ColorizedString['🌑'].colorize(dot_color.to_sym)
+    end
+
     def show_options
-      puts 'Shows 0..5 colors to select from with corrisponding numbers'
+      puts "#{dot(1)} #{dot(2)} #{dot(3)}"
+      puts "#{dot(4)} #{dot(5)} #{dot(6)}"
     end
 
     def update(player_input)
