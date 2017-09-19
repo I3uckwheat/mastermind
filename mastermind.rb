@@ -14,9 +14,9 @@ class GameEngine
   end
 
   def round
+    @mastermind.debug_show_code
     place(recieve_input)
-    # win?
-    # hint
+    hint
     show_playfield
     @round_number += 1
   end
@@ -25,10 +25,17 @@ class GameEngine
     @mastermind.show_board
   end
 
+  def win?
+    if @mastermind.win_condition
+      puts "You've Won!"
+      true
+    end
+  end
+
   private
 
-  def win?(player_input)
-    @mastermind.win_condition(player_input)
+  def hint
+    @mastermind.hint
   end
 
   def place(player_input)
@@ -43,17 +50,22 @@ class GameEngine
     def initialize(number_of_pegs = 4)
       @code = generate_code(number_of_pegs)
       @lines = generate_hash
+      @last_input = nil
       @colors = { 1 => 'magenta', 2 => 'light_red', 3 => 'green',
                   4 => 'yellow', 5 => 'cyan', 6 => 'white', 7 => 'light_black' }
       puts 'Welcome to MASTERMIND!'
       show_board
     end
 
+    def debug_show_code
+      p @code
+    end
+
     def generate_hash
       hash = {}
       10.times do |x|
         hash[('line' + x.to_s).to_sym] = { line_number: x + 1,
-                                           guess: Array.new(4, ColorizedString["🌕"].colorize(:white)),
+                                           guess: Array.new(4, ColorizedString['🌕'].colorize(:white)),
                                            answer: %w[◦ ◦ ◦ ◦] }
       end
       hash
@@ -87,7 +99,7 @@ class GameEngine
     end
 
     def win_condition # last code entered == the computer code = win!
-      # last code entered == @code
+      @last_input == @code
     end
 
     def recieve_input
@@ -103,13 +115,17 @@ class GameEngine
       end
     end
 
+    def hint
+      puts 'gives hint'
+    end
+
     private
 
     def input_validator(input)
       if input.length == 4 &&
-         input.all? { |x| x.to_i <= 6 } &&
+         input.all? { |x| x.to_i.between?(1, 6) } &&
          /\d\d\d\d/.match?(input.join)
-        input.map(&:to_i)
+        @last_input = input.map(&:to_i)
       else
         show_board
         puts 'INVALID INPUT'
@@ -122,4 +138,4 @@ end
 
 g = GameEngine.new
 
-9.times { g.round }
+g.round until g.win?
