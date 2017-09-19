@@ -7,6 +7,7 @@ require 'colorized_string'
 # six colors
 # 4 pegs
 class GameEngine
+  require './mastermind.rb'
   def initialize(number_of_pegs = 4)
     mastermind = Mastermind.new(number_of_pegs)
     @current_round = 0
@@ -38,5 +39,4 @@ class GameEngine
   def win?(player_input)
     mastermind.win_condition(player_input)
   end
-  require 'mastermind'
 end
