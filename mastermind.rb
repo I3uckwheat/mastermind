@@ -8,7 +8,7 @@ require 'colorized_string'
 # 4 pegs
 class GameEngine
   def initialize(number_of_pegs = 4)
-    mastermind = Mastermind.new(number_of_pegs)
+    @mastermind = Mastermind.new(number_of_pegs)
     round
   end
 
@@ -20,21 +20,21 @@ class GameEngine
   end
 
   def show_playfield
-    mastermind.show_board
+    @mastermind.show_board
   end
 
   private
 
   def win?(player_input)
-    mastermind.win_condition(player_input)
+    @mastermind.win_condition(player_input)
   end
 
   def place(player_input)
-    mastermind.place(player_input)
+    @mastermind.place(player_input)
   end
 
   def recieve_input
-    mastermind.get_input
+    @mastermind.get_input
   end
 
   class Mastermind
@@ -55,12 +55,12 @@ class GameEngine
       hash
     end
 
-    def show_board(lines)
+    def show_board
       line = '------------------'.rjust(24)
       puts line
       puts '|   MASTERMIND   |'.rjust(24)
       puts line
-      lines.each_value do |values|
+      @lines.each_value do |values|
         puts "#{values[:line_number]}  | #{values[:guess].join(' ')} | #{values[:answer].join} | ".rjust(25)
       end
       puts line
