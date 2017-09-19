@@ -34,7 +34,7 @@ class GameEngine
   end
 
   def recieve_input
-    @mastermind.get_input
+    @mastermind.recieve_input
   end
 
   class Mastermind
