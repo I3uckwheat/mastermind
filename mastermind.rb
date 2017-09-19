@@ -65,7 +65,7 @@ class GameEngine
       puts '|   MASTERMIND   |'.rjust(24)
       puts line
       @lines.each_value do |values|
-        puts "#{values[:line_number]}  | #{values[:guess].join(' ')} | #{values[:answer].join} | ".rjust(25)
+        puts "#{values[:line_number]}  | #{values[:guess].join(' ')} | #{values[:answer].join} | ".rjust(81)
       end
       puts line
       show_options
