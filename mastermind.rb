@@ -94,7 +94,7 @@ class GameEngine
 
     def generate_code(pegs) # Chance to add difficulty later
       code = []
-      pegs.times { code << rand(7) }
+      pegs.times { code << rand(6) + 1 }
       code
     end
 
