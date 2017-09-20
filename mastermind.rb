@@ -56,6 +56,7 @@ class GameEngine
   class Mastermind
     def initialize(number_of_rounds, number_of_pegs = 4)
       @code = generate_code(number_of_pegs)
+      p @code
       @lines = generate_hash(number_of_rounds)
       @last_input = nil
       @colors = { 1 => 'magenta', 2 => 'light_red', 3 => 'green',
@@ -118,20 +119,57 @@ class GameEngine
       end
     end
 
-    def hint(line)
-      hints = []
-      last_input = @last_input.clone
-      @code.each_with_index do |value, index|
-        if value == last_input[index]
-          hints <<  ColorizedString['•'].colorize(:red)
-        elsif last_input.any? { |x| x == value }
-          hints <<  ColorizedString['•'].colorize(:white)
-        end
-      end
-      update_board(hints, line)
+    def hint(line_number)
+      guess = @last_input.clone
+      secret = @code.clone
+      matches, partials = matcher(guess, secret)
+      puts matches.inspect
+      puts partials.inspect
+      hints = Array.new(matches, ColorizedString['•'].colorize(:red))
+      partials.times { hints << ColorizedString['•'].colorize(:white) }
+      update_board(hints, line_number)
     end
 
     private
+
+    def matcher(guess, secret)
+      matches, to_delete = exact_matches(guess, secret)
+      guess, secret = delete_from_same_indexes(guess, secret, to_delete)
+      partials = partial_matches(guess, secret)
+      [matches, partials]
+    end
+
+    def exact_matches(guess, secret) # where guess, secret is an array
+      match_arry = []
+      secret.each_with_index do |number, index|
+        match_arry << index if exact_match?(number, guess[index])
+      end
+      p match_arry
+      [match_arry.length, match_arry]
+    end
+
+    def delete_from_same_indexes(guess, secret, to_delete)
+      to_delete.reverse_each do |match|
+        secret.delete_at(match)
+        guess.delete_at(match)
+      end
+      [guess, secret]
+    end
+
+    def partial_matches(guess, secret) # where guess, secret is an array
+      partials = 0
+      guess.each_with_index do |number, _index|
+        if secret.include?(number)
+          secret.delete_at(secret.find_index(number))
+          partials += 1
+        end
+      end
+      partials
+    end
+
+    def exact_match?(guess, secret)
+      guess == secret
+    end
 
     def input_validator(input)
       if input.length == 4 &&
