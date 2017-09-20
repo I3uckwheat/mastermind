@@ -15,7 +15,6 @@ class GameEngine
   end
 
   def round
-    @mastermind.debug_show_code
     place(recieve_input)
     hint
     show_playfield
@@ -63,10 +62,6 @@ class GameEngine
                   4 => 'yellow', 5 => 'cyan', 6 => 'white', 7 => 'light_black' }
       puts 'Welcome to MASTERMIND!'
       show_board
-    end
-
-    def debug_show_code
-      p @code
     end
 
     def generate_hash(number_of_rounds)
