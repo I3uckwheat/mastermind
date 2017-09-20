@@ -8,8 +8,9 @@ require 'colorized_string'
 # 4 pegs
 class GameEngine
   def initialize(number_of_pegs = 4)
-    @mastermind = Mastermind.new(number_of_pegs)
+    @rounds = 10
     @round_number = 0
+    @mastermind = Mastermind.new(@rounds, number_of_pegs)
     round
   end
 
@@ -32,10 +33,17 @@ class GameEngine
     end
   end
 
+  def lose?
+    if @round_number == @rounds
+      puts 'YOU LOSE'
+      true
+    end
+  end
+
   private
 
   def hint
-    @mastermind.hint
+    @mastermind.hint(@round_number)
   end
 
   def place(player_input)
@@ -47,9 +55,9 @@ class GameEngine
   end
 
   class Mastermind
-    def initialize(number_of_pegs = 4)
+    def initialize(number_of_rounds, number_of_pegs = 4)
       @code = generate_code(number_of_pegs)
-      @lines = generate_hash
+      @lines = generate_hash(number_of_rounds)
       @last_input = nil
       @colors = { 1 => 'magenta', 2 => 'light_red', 3 => 'green',
                   4 => 'yellow', 5 => 'cyan', 6 => 'white', 7 => 'light_black' }
@@ -61,12 +69,12 @@ class GameEngine
       p @code
     end
 
-    def generate_hash
+    def generate_hash(number_of_rounds)
       hash = {}
-      10.times do |x|
+      number_of_rounds.times do |x|
         hash[('line' + x.to_s).to_sym] = { line_number: x + 1,
                                            guess: Array.new(4, ColorizedString['🌕'].colorize(:white)),
-                                           answer: %w[◦ ◦ ◦ ◦] }
+                                           hint: Array.new(4, ColorizedString['◦'].colorize(:white)) }
       end
       hash
     end
@@ -77,7 +85,7 @@ class GameEngine
       puts '|   MASTERMIND   |'.rjust(24)
       puts line
       @lines.each_value do |values|
-        puts "#{values[:line_number]}  | #{values[:guess].join(' ')} | #{values[:answer].join} | ".rjust(81)
+        puts "#{values[:line_number]}  | #{values[:guess].join(' ')} | #{values[:hint].join} | ".rjust(137)
       end
       puts line
       show_options
@@ -98,7 +106,7 @@ class GameEngine
       code
     end
 
-    def win_condition # last code entered == the computer code = win!
+    def win_condition
       @last_input == @code
     end
 
@@ -115,8 +123,17 @@ class GameEngine
       end
     end
 
-    def hint
-      puts 'gives hint'
+    def hint(line)
+      hints = []
+      last_input = @last_input.clone
+      @code.each_with_index do |value, index|
+        if value == last_input[index]
+          hints <<  ColorizedString['•'].colorize(:red)
+        elsif last_input.any? { |x| x == value }
+          hints <<  ColorizedString['•'].colorize(:white)
+        end
+      end
+      update_board(hints, line)
     end
 
     private
@@ -133,9 +150,15 @@ class GameEngine
         recieve_input
       end
     end
+
+    def update_board(hints, line)
+      hints.each_with_index do |hint, index|
+        @lines[('line' + line.to_s).to_sym][:hint][index] = hint
+      end
+    end
   end
 end
 
 g = GameEngine.new
 
-g.round until g.win?
+g.round until g.win? || g.lose?
