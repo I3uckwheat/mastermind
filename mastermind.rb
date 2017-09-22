@@ -11,10 +11,9 @@ class GameEngine
     @rounds = 10
     @round_number = 0
     @mastermind = Mastermind.new(@rounds, number_of_pegs)
-    round
   end
 
-  def round
+  def player_round
     place(recieve_input)
     hint
     show_playfield
@@ -56,7 +55,6 @@ class GameEngine
   class Mastermind
     def initialize(number_of_rounds, number_of_pegs = 4)
       @code = generate_code(number_of_pegs)
-      p @code
       @lines = generate_hash(number_of_rounds)
       @last_input = nil
       @colors = { 1 => 'magenta', 2 => 'light_red', 3 => 'green',
@@ -172,16 +170,24 @@ class GameEngine
     end
 
     def input_validator(input)
-      if input.length == 4 &&
-         input.all? { |x| x.to_i.between?(1, 6) } &&
-         /\d\d\d\d/.match?(input.join)
+      if valid_input?
         @last_input = input.map(&:to_i)
       else
-        show_board
-        puts 'INVALID INPUT'
-        puts 'TRY AGAIN'
-        recieve_input
+        invalid_message
       end
+    end
+
+    def valid_input?
+      input.length == 4 &&
+        input.all? { |x| x.to_i.between?(1, 6) } &&
+        /\d\d\d\d/.match?(input.join)
+    end
+
+    def invalid_message
+      show_board
+      puts 'INVALID INPUT'
+      puts 'TRY AGAIN'
+      recieve_input
     end
 
     def update_board(hints, line)
@@ -194,4 +200,4 @@ end
 
 g = GameEngine.new
 
-g.round until g.win? || g.lose?
+g.player_round until g.win? || g.lose?
